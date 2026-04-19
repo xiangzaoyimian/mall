@@ -10,6 +10,7 @@ import com.pants.mall.entity.User;
 import com.pants.mall.mapper.UserMapper;
 import com.pants.mall.service.AuthService;
 import com.pants.mall.util.JwtUtils;
+import com.pants.mall.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,9 +22,10 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final UserMapper userMapper;
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtils jwtUtils;
-    private final BCryptPasswordEncoder encoder;
+  private final AuthenticationManager authenticationManager;
+  private final JwtUtils jwtUtils;
+  private final BCryptPasswordEncoder encoder;
+  private final SecurityUtil securityUtil;
 
     @Override
     public AuthLoginResp login(AuthLoginReq req) {
@@ -56,5 +58,28 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(Constants.ROLE_USER);
         user.setStatus(Constants.USER_STATUS_NORMAL);
         userMapper.insert(user);
+    }
+
+    @Override
+    public void updatePassword(String password) {
+        // 获取当前登录用户的用户名
+        String username = securityUtil.getUsername();
+        if (username == null) {
+            throw new BusinessException("用户未登录");
+        }
+        
+        // 查找用户
+        User user = userMapper.selectOne(new QueryWrapper<User>()
+                .eq("username", username)
+                .eq("deleted", 0)
+                .last("limit 1"));
+        
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        
+        // 更新密码
+        user.setPassword(encoder.encode(password));
+        userMapper.updateById(user);
     }
 }

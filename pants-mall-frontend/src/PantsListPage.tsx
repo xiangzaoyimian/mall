@@ -1,6 +1,17 @@
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { getProductList } from './api/products'
 import './styles/pants-list.css'
+
+type FilterState = {
+  keyword?: string
+  fitType?: string
+  color?: string
+  size?: string
+  minPrice?: string
+  maxPrice?: string
+  sortBy?: string
+  sortOrder?: string
+}
 
 type Props = {
   onOpenDetail?: (spuId: string | number) => void
@@ -10,10 +21,14 @@ type Props = {
   initialFitType?: string
   initialColor?: string
   initialSize?: string
+  initialBrand?: string
   initialMinPrice?: string
   initialMaxPrice?: string
   initialSortBy?: string
   initialSortOrder?: string
+  savedFilters?: FilterState
+  onFiltersChange?: (filters: FilterState) => void
+  onResetFilters?: () => void
 }
 
 function toNumberOrUndefined(v: string) {
@@ -79,23 +94,41 @@ export default function PantsListPage({
   initialFitType = '',
   initialColor = '',
   initialSize = '',
+  initialBrand = '',
   initialMinPrice = '',
   initialMaxPrice = '',
   initialSortBy = 'NEW',
   initialSortOrder = 'DESC',
+  savedFilters,
+  onFiltersChange,
+  onResetFilters,
 }: Props) {
-  const [keyword, setKeyword] = useState(initialKeyword)
-  const [minPrice, setMinPrice] = useState(initialMinPrice)
-  const [maxPrice, setMaxPrice] = useState(initialMaxPrice)
-  const [sortBy, setSortBy] = useState(initialSortBy)
-  const [sortOrder, setSortOrder] = useState(initialSortOrder)
+  const getInitialValue = (key: keyof FilterState, defaultValue: string) => {
+    if (savedFilters && key in savedFilters) {
+      return savedFilters[key] ?? defaultValue
+    }
+    switch (key) {
+      case 'fitType': return initialFitType
+      case 'color': return initialColor
+      case 'size': return initialSize
+      case 'minPrice': return initialMinPrice
+      case 'maxPrice': return initialMaxPrice
+      case 'sortBy': return initialSortBy
+      case 'sortOrder': return initialSortOrder
+      default: return defaultValue
+    }
+  }
+
+  const [keyword, setKeyword] = useState(getInitialValue('keyword', ''))
+  const [minPrice, setMinPrice] = useState(getInitialValue('minPrice', ''))
+  const [maxPrice, setMaxPrice] = useState(getInitialValue('maxPrice', ''))
+  const [sortBy, setSortBy] = useState(getInitialValue('sortBy', 'NEW'))
+  const [sortOrder, setSortOrder] = useState(getInitialValue('sortOrder', 'DESC'))
   const [pageSize, setPageSize] = useState('15')
   const [currentPage, setCurrentPage] = useState(1)
-
-  // 新增筛选选项
-  const [fitType, setFitType] = useState(initialFitType)
-  const [color, setColor] = useState(initialColor)
-  const [size, setSize] = useState(initialSize)
+  const [fitType, setFitType] = useState(getInitialValue('fitType', ''))
+  const [color, setColor] = useState(getInitialValue('color', ''))
+  const [size, setSize] = useState(getInitialValue('size', ''))
   const [showFilters, setShowFilters] = useState(false)
 
   // 动态筛选选项
@@ -113,6 +146,21 @@ export default function PantsListPage({
     if (loading) return '正在加载...'
     return `共找到 ${total} 个商品`
   }, [searched, loading, total])
+
+  useEffect(() => {
+    if (onFiltersChange) {
+      onFiltersChange({
+        keyword,
+        fitType,
+        color,
+        size,
+        minPrice,
+        maxPrice,
+        sortBy,
+        sortOrder,
+      })
+    }
+  }, [keyword, fitType, color, size, minPrice, maxPrice, sortBy, sortOrder, onFiltersChange])
 
   const loadProducts = useCallback(async (nextKeyword?: string) => {
     const realKeyword = typeof nextKeyword === 'string' ? nextKeyword : keyword
@@ -138,6 +186,11 @@ export default function PantsListPage({
       setProducts(productList)
       setTotal(Number(data.total || 0))
       setSearched(true)
+    } catch (error) {
+      console.error('Failed to load products:', error)
+      setProducts([])
+      setTotal(0)
+      setSearched(true)
     } finally {
       setLoading(false)
     }
@@ -155,6 +208,11 @@ export default function PantsListPage({
       const productList = Array.isArray(data.list) ? data.list : []
       setProducts(productList)
       setTotal(Number(data.total || 0))
+      setSearched(true)
+    } catch (error) {
+      console.error('Failed to load default products:', error)
+      setProducts([])
+      setTotal(0)
       setSearched(true)
     } finally {
       setLoading(false)
@@ -222,13 +280,15 @@ export default function PantsListPage({
     setSortOrder('DESC')
     setPageSize('15')
     setCurrentPage(1)
-    // 重置新增筛选选项
+    setFitType('')
     setColor('')
     setSize('')
 
-    setTimeout(() => {
-      loadDefaultProducts()
-    }, 0)
+    if (onResetFilters) {
+      onResetFilters()
+    }
+
+    loadDefaultProducts()
   }
 
   function handleOpenDetail(spuId?: string | number) {
@@ -247,17 +307,45 @@ export default function PantsListPage({
 
 
 
-  useEffect(() => {
-    setKeyword(initialKeyword)
-    setFitType(initialFitType)
+  const isMountedRef = useRef(false)
 
-    if (initialKeyword.trim() || initialFitType) {
-      loadProducts(initialKeyword)
+  useEffect(() => {
+    // 检查savedFilters是否为空对象
+    const isEmptySavedFilters = !savedFilters || Object.keys(savedFilters).length === 0
+    
+    if (isEmptySavedFilters) {
+      // 只有在首次渲染时才使用initial值
+      if (!isMountedRef.current) {
+        setKeyword(initialKeyword || '')
+        setFitType(initialFitType || '')
+        setColor('')
+        setSize('')
+        setMinPrice('')
+        setMaxPrice('')
+
+        if (initialKeyword?.trim() || initialFitType) {
+          loadProducts(initialKeyword)
+        } else {
+          loadDefaultProducts()
+        }
+        isMountedRef.current = true
+      } else {
+        // 非首次渲染且savedFilters为空，说明是用户点击了重置按钮
+        // 清空所有筛选条件并加载默认商品
+        setKeyword('')
+        setFitType('')
+        setColor('')
+        setSize('')
+        setMinPrice('')
+        setMaxPrice('')
+        loadDefaultProducts()
+      }
     } else {
-      loadDefaultProducts()
+      // 有保存的筛选条件时，直接加载商品
+      loadProducts()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialKeyword, initialFitType])
+  }, [initialKeyword, initialFitType, savedFilters])
 
   useEffect(() => {
     if (searched) {

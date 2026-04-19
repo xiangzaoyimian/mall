@@ -91,6 +91,7 @@ com\pants\mall\controller\UploadController.class
 com\pants\mall\service\impl\AuthServiceImpl.class
 com\pants\mall\dto\MeBodyUpdateReq.class
 com\pants\mall\service\impl\AddressServiceImpl.class
+com\pants\mall\controller\UserController$UpdatePasswordReq.class
 com\pants\mall\entity\Review.class
 com\pants\mall\controller\AddressController.class
 com\pants\mall\entity\Address.class

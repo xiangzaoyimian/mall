@@ -136,13 +136,6 @@ export default function LoginPage({
             <div className="login-form-field">
               <div className="login-form-field-header">
                 <label className="login-form-label">密码</label>
-                <button
-                  type="button"
-                  className="login-form-forgot"
-                  disabled={loading}
-                >
-                  忘记密码？
-                </button>
               </div>
               <div className="login-form-password-wrap">
                 <input

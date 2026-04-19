@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { getMe, updateMyBody, updateMyNickname, type MeInfo } from './api/auth'
+import { getMe, updateMyNickname, updateMyPassword, type MeInfo } from './api/auth'
 import { listOrders } from './api/orders'
 import { listFavorites, removeFavorite } from './api/favorites'
 import { listMyAddresses, saveAddress, deleteAddress, type AddressItem } from './api/address'
@@ -23,15 +23,11 @@ export default function UserProfilePage({
   const [loading, setLoading] = useState(false)
   const [summaryLoading, setSummaryLoading] = useState(false)
   const [savingNickname, setSavingNickname] = useState(false)
-  const [savingBody, setSavingBody] = useState(false)
 
   const [msg, setMsg] = useState('')
   const [me, setMe] = useState<MeInfo | null>(null)
 
   const [nickname, setNickname] = useState('')
-  const [heightCm, setHeightCm] = useState('')
-  const [waistCm, setWaistCm] = useState('')
-  const [legLengthCm, setLegLengthCm] = useState('')
 
   const [orderTotal, setOrderTotal] = useState(0)
   const [orderFinished, setOrderFinished] = useState(0)
@@ -46,7 +42,6 @@ export default function UserProfilePage({
   const [hoverAddress, setHoverAddress] = useState(false)
   const [hoverProfile, setHoverProfile] = useState(false)
   const [hoverSaveNickname, setHoverSaveNickname] = useState(false)
-  const [hoverSaveBody, setHoverSaveBody] = useState(false)
 
   // 地址弹窗状态
   const [showAddressModal, setShowAddressModal] = useState(false)
@@ -94,8 +89,6 @@ export default function UserProfilePage({
   }, [city, selectedProvince])
 
   const [focusNickname, setFocusNickname] = useState(false)
-  const [focusHeight, setFocusHeight] = useState(false)
-  const [focusWaist, setFocusWaist] = useState(false)
   const [password, setPassword] = useState('')
   const [savingPassword, setSavingPassword] = useState(false)
 
@@ -108,21 +101,6 @@ export default function UserProfilePage({
         const data = res.data || {}
         setMe(data)
         setNickname(String(data.nickname || ''))
-        setHeightCm(
-          data.heightCm === null || data.heightCm === undefined
-            ? ''
-            : String(data.heightCm)
-        )
-        setWaistCm(
-          data.waistCm === null || data.waistCm === undefined
-            ? ''
-            : String(data.waistCm)
-        )
-        setLegLengthCm(
-          data.legLengthCm === null || data.legLengthCm === undefined
-            ? ''
-            : String(data.legLengthCm)
-        )
       } else {
         setMsg(res.msg || '获取个人信息失败')
       }
@@ -309,55 +287,7 @@ export default function UserProfilePage({
     }
   }
 
-  async function handleSaveBody() {
-    const nextHeight = String(heightCm || '').trim()
-    const nextWaist = String(waistCm || '').trim()
-    const nextLeg = String(legLengthCm || '').trim()
 
-    const payload: {
-      heightCm?: number
-      waistCm?: number
-      legLengthCm?: number
-    } = {}
-
-    if (nextHeight) payload.heightCm = Number(nextHeight)
-    if (nextWaist) payload.waistCm = Number(nextWaist)
-    if (nextLeg) payload.legLengthCm = Number(nextLeg)
-
-    if (
-      (payload.heightCm !== undefined && Number.isNaN(payload.heightCm)) ||
-      (payload.waistCm !== undefined && Number.isNaN(payload.waistCm)) ||
-      (payload.legLengthCm !== undefined && Number.isNaN(payload.legLengthCm))
-    ) {
-      setMsg('身材信息请输入数字')
-      return
-    }
-
-    setSavingBody(true)
-    setMsg('')
-    try {
-      const res = await updateMyBody(payload)
-      if (res.code === 200) {
-        setMe((prev) =>
-          prev
-            ? {
-                ...prev,
-                heightCm: payload.heightCm,
-                waistCm: payload.waistCm,
-                legLengthCm: payload.legLengthCm,
-              }
-            : prev
-        )
-        setMsg('身材信息更新成功')
-      } else {
-        setMsg(res.msg || '身材信息更新失败')
-      }
-    } catch (e: unknown) {
-      setMsg((e as any)?.response?.data?.msg || (e as Error)?.message || '身材信息更新失败')
-    } finally {
-      setSavingBody(false)
-    }
-  }
 
   async function handleSavePassword() {
     const nextPassword = String(password || '').trim()
@@ -375,20 +305,12 @@ export default function UserProfilePage({
     setSavingPassword(true)
     setMsg('')
     try {
-      const res = await fetch('http://localhost:8081/api/user/update-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password: nextPassword }),
-      })
-
-      const data = await res.json()
-      if (data.code === 200) {
+      const res = await updateMyPassword(nextPassword)
+      if (res.code === 200) {
         setMsg('密码更新成功')
         setPassword('')
       } else {
-        setMsg(data.msg || '密码更新失败')
+        setMsg(res.msg || '密码更新失败')
       }
     } catch (e: unknown) {
       setMsg((e as any)?.response?.data?.msg || (e as Error)?.message || '密码更新失败')
@@ -407,7 +329,7 @@ export default function UserProfilePage({
 
   const summaryText = useMemo(() => {
     if (summaryLoading) return '正在同步你的订单、收藏、地址和档案信息...'
-    return '这里可以查看你的基础资料、身材信息，以及与你账号相关的功能总览。'
+    return '这里可以查看你的基础资料，以及与你账号相关的功能总览。'
   }, [summaryLoading])
 
   return (
@@ -614,84 +536,7 @@ export default function UserProfilePage({
               </div>
             </div>
 
-            <div style={sectionWrapStyle}>
-              <div style={sectionTitleStyle}>身材信息</div>
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 'var(--spacing-4)'
-              }}>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: 'var(--spacing-4)'
-                }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={labelStyle}>身高（cm）</div>
-                    <input
-                      value={heightCm}
-                      onChange={(e) => setHeightCm(e.target.value)}
-                      placeholder="例如 175"
-                      style={{
-                        ...inputStyle,
-                        ...(focusHeight ? focusedInputStyle : {}),
-                        marginTop: 8
-                      }}
-                      disabled={savingBody}
-                      onFocus={() => setFocusHeight(true)}
-                      onBlur={() => setFocusHeight(false)}
-                    />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={labelStyle}>腰围（cm）</div>
-                    <input
-                      value={waistCm}
-                      onChange={(e) => setWaistCm(e.target.value)}
-                      placeholder="例如 80"
-                      style={{
-                        ...inputStyle,
-                        ...(focusWaist ? focusedInputStyle : {}),
-                        marginTop: 8
-                      }}
-                      disabled={savingBody}
-                      onFocus={() => setFocusWaist(true)}
-                      onBlur={() => setFocusWaist(false)}
-                    />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={labelStyle}>腿长（cm）</div>
-                    <input
-                      value={legLengthCm}
-                      onChange={(e) => setLegLengthCm(e.target.value)}
-                      placeholder="例如 90"
-                      style={{
-                        ...inputStyle,
-                        marginTop: 8
-                      }}
-                      disabled={savingBody}
-                    />
-                  </div>
-                </div>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end'
-                }}>
-                  <button
-                    type="button"
-                    style={{
-                      ...saveBtnStyle,
-                      ...(hoverSaveBody ? hoverSaveBtnStyle : {}),
-                    }}
-                    onClick={handleSaveBody}
-                    disabled={savingBody}
-                    onMouseEnter={() => setHoverSaveBody(true)}
-                    onMouseLeave={() => setHoverSaveBody(false)}
-                  >
-                    {savingBody ? '保存中...' : '保存身材信息'}
-                  </button>
-                </div>
-              </div>
-            </div>
+
 
 
 

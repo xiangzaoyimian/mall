@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { getRecommendByProfile, type RecommendItem } from './api/recommend'
 import { listProfiles, type BodyProfile } from './api/bodyProfile'
 import { chatWithAi } from './api/ai'
@@ -243,7 +243,7 @@ export default function RecommendPage({
 
   const chatListRef = useRef<HTMLDivElement | null>(null)
 
-  function resetRecommendState(showLoginMsg = false) {
+  const resetRecommendState = useCallback((showLoginMsg = false) => {
     setProfiles([])
     setProfileId('')
     setList([])
@@ -252,9 +252,9 @@ export default function RecommendPage({
     setMsg(showLoginMsg ? '您还未登录，请先登录后查看档案和推荐。' : '')
     setAiMsg('')
     onClearAiState()
-  }
+  }, [onClearAiState, setAiMsg])
 
-  async function loadRecommend(currentProfileId: string) {
+  const loadRecommend = useCallback(async (currentProfileId: string) => {
     if (!isLoggedIn) {
       resetRecommendState(true)
       return
@@ -286,13 +286,13 @@ export default function RecommendPage({
     } finally {
       setLoading(false)
     }
-  }
+  }, [isLoggedIn, resetRecommendState])
 
-  function appendChatMessage(message: RecommendChatMessage) {
+  const appendChatMessage = useCallback((message: RecommendChatMessage) => {
     setChatMessages((prev) => [...prev, message])
-  }
+  }, [setChatMessages])
 
-  function replaceLastAiLoading(content: string, isError?: boolean) {
+  const replaceLastAiLoading = useCallback((content: string, isError?: boolean) => {
     setChatMessages((prev) => {
       const next = [...prev]
       for (let i = next.length - 1; i >= 0; i -= 1) {
@@ -315,9 +315,9 @@ export default function RecommendPage({
       )
       return next
     })
-  }
+  }, [setChatMessages])
 
-  async function handleAiAsk(questionText?: string) {
+  const handleAiAsk = useCallback(async (questionText?: string) => {
     if (!isLoggedIn) {
       setAiMsg('您还未登录，请先登录')
       return
@@ -363,11 +363,11 @@ export default function RecommendPage({
     } finally {
       setLoadingAi(false)
     }
-  }
+  }, [isLoggedIn, profileId, aiQuestion, appendChatMessage, replaceLastAiLoading, setAiMsg, setAiQuestion])
 
-  function clearChat() {
+  const clearChat = useCallback(() => {
     onClearAiState()
-  }
+  }, [onClearAiState])
 
   useEffect(() => {
     async function init() {

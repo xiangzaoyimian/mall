@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import './styles/base.css'
 import './styles/pants-list.css'
 import PantsListPage from './PantsListPage'
@@ -189,6 +189,17 @@ export default function App() {
     sortOrder?: string
   }>({})
 
+  const [pantsPageSavedFilters, setPantsPageSavedFilters] = useState<{
+    keyword?: string
+    fitType?: string
+    color?: string
+    size?: string
+    minPrice?: string
+    maxPrice?: string
+    sortBy?: string
+    sortOrder?: string
+  }>({})
+
   const userMenuRef = useRef<HTMLDivElement | null>(null)
   const token = readToken()
   const isLoggedIn = Boolean(token)
@@ -298,11 +309,11 @@ export default function App() {
 
 
 
-  function clearRecommendAiState() {
+  const clearRecommendAiState = useCallback(() => {
     setRecommendAiQuestion('')
     setRecommendAiMsg('')
     setRecommendChatMessages([])
-  }
+  }, [])
 
   function handleLogout() {
     localStorage.removeItem('token')
@@ -601,10 +612,18 @@ export default function App() {
         {tab === 'home' && (
           <HomePage
             key={authTick}
-            onGoProducts={() => goTab('pants')}
+            onGoProducts={() => {
+              setPantsPageFilter({})
+              setPantsPageSavedFilters({})
+              goTab('pants')
+            }}
             onGoRecommend={() => goTab('recommend')}
             onGoPantsWithFilter={(filter) => {
               setPantsPageFilter(filter)
+              setPantsPageSavedFilters({
+                ...pantsPageSavedFilters,
+                ...filter,
+              })
               goTab('pants')
             }}
             onOpenDetail={(id) => openDetail(id, 'home')}
@@ -626,6 +645,9 @@ export default function App() {
             initialMaxPrice={pantsPageFilter.maxPrice}
             initialSortBy={pantsPageFilter.sortBy}
             initialSortOrder={pantsPageFilter.sortOrder}
+            savedFilters={pantsPageSavedFilters}
+            onFiltersChange={setPantsPageSavedFilters}
+            onResetFilters={() => setPantsPageSavedFilters({})}
           />
         )}
 
@@ -647,6 +669,7 @@ export default function App() {
             spuId={spuIdInput}
             onBack={handleBackFromDetail}
             onGoOrders={() => goTab('orders')}
+            sourceTab={detailSourceTab}
           />
         )}
 

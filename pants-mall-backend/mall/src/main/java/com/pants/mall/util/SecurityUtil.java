@@ -47,4 +47,21 @@ public class SecurityUtil {
 
         return userId;
     }
+
+    public String getUsername() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null) {
+            return null;
+        }
+
+        Object principal = auth.getPrincipal();
+        if (principal instanceof UserDetails ud) {
+            return ud.getUsername();
+        } else if (principal instanceof String s) {
+            return s;
+        } else {
+            return null;
+        }
+    }
 }

@@ -27,6 +27,7 @@ type Props = {
   spuId: string | number
   onBack?: () => void
   onGoOrders?: () => void
+  sourceTab?: string
 }
 
 type ReviewFilterType = 'all' | 'good' | 'middle' | 'bad'
@@ -144,6 +145,7 @@ export default function ProductDetailPage({
   spuId,
   onBack,
   onGoOrders,
+  sourceTab,
 }: Props) {
   const [spu, setSpu] = useState<Record<string, unknown> | null>(null)
   const [allSkus, setAllSkus] = useState<SkuItem[]>([])
@@ -536,7 +538,7 @@ export default function ProductDetailPage({
           onClick={handleBack}
           className="product-back-btn"
         >
-          ← 返回商品列表
+          ← {sourceTab === 'orders' ? '返回订单列表' : sourceTab === 'favorites' ? '返回收藏列表' : '返回商品列表'}
         </button>
       </div>
 

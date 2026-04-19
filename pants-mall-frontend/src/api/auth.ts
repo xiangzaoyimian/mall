@@ -45,3 +45,8 @@ export async function updateMyBody(data: {
   const resp = await client.post<Result<null>>('/me/body', data)
   return resp.data
 }
+
+export async function updateMyPassword(password: string) {
+  const resp = await client.post<Result<null>>('/user/update-password', { password })
+  return resp.data
+}

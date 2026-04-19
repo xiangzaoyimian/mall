@@ -2,6 +2,7 @@ package com.pants.mall.common;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,6 +19,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class, ConstraintViolationException.class})
     public Result<Void> handleValidation(Exception ex) {
         return Result.fail(HttpStatus.BAD_REQUEST.value(), "参数校验失败");
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public Result<Void> handleBadCredentials(BadCredentialsException ex) {
+        return Result.fail(HttpStatus.UNAUTHORIZED.value(), "用户名或密码错误");
     }
 
     @ExceptionHandler(Exception.class)
