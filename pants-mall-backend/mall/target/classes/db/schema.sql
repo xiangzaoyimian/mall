@@ -1,0 +1,216 @@
+DROP TABLE IF EXISTS review;
+DROP TABLE IF EXISTS payment;
+DROP TABLE IF EXISTS order_item;
+DROP TABLE IF EXISTS order_info;
+DROP TABLE IF EXISTS cart_item;
+DROP TABLE IF EXISTS favorite;
+DROP TABLE IF EXISTS after_sale;
+DROP TABLE IF EXISTS product_sku;
+DROP TABLE IF EXISTS product_spu;
+DROP TABLE IF EXISTS category;
+DROP TABLE IF EXISTS address;
+DROP TABLE IF EXISTS user_body_profile;
+DROP TABLE IF EXISTS `user`;
+
+CREATE TABLE `user` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(64) NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
+  `role` VARCHAR(16) NOT NULL,
+  `status` VARCHAR(16) NOT NULL,
+  `nickname` VARCHAR(64) DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  `height_cm` INT DEFAULT NULL,
+  `waist_cm` INT DEFAULT NULL,
+  `leg_length_cm` INT DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_username_deleted` (`username`, `deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `user_body_profile` (
+  `id` BIGINT NOT NULL,
+  `user_id` BIGINT NOT NULL,
+  `name` VARCHAR(50) NOT NULL,
+  `height_cm` INT DEFAULT NULL,
+  `weight_kg` DECIMAL(5,2) DEFAULT NULL,
+  `waist_cm` INT DEFAULT NULL,
+  `leg_length_cm` INT DEFAULT NULL,
+  `created_at` DATETIME DEFAULT NULL,
+  `updated_at` DATETIME DEFAULT NULL,
+  `deleted` TINYINT DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `address` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `receiver` VARCHAR(64) NOT NULL,
+  `phone` VARCHAR(32) NOT NULL,
+  `province` VARCHAR(64) DEFAULT NULL,
+  `city` VARCHAR(64) DEFAULT NULL,
+  `district` VARCHAR(64) DEFAULT NULL,
+  `detail` VARCHAR(255) DEFAULT NULL,
+  `is_default` TINYINT DEFAULT 0,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `category` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(128) NOT NULL,
+  `parent_id` BIGINT DEFAULT 0,
+  `sort` INT DEFAULT 0,
+  `status` VARCHAR(16) NOT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `product_spu` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(128) NOT NULL,
+  `category_id` BIGINT NOT NULL,
+  `description` TEXT,
+  `status` VARCHAR(16) NOT NULL,
+  `sales` INT DEFAULT 0,
+  `cover_url` VARCHAR(255) DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `product_sku` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `spu_id` BIGINT NOT NULL,
+  `sku_code` VARCHAR(64) NOT NULL,
+  `title` VARCHAR(128) NOT NULL,
+  `price` DECIMAL(10,2) NOT NULL,
+  `stock` INT NOT NULL,
+  `color` VARCHAR(32) DEFAULT NULL,
+  `size` VARCHAR(32) DEFAULT NULL,
+  `status` VARCHAR(16) NOT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  `length_cm` INT DEFAULT NULL,
+  `waist_cm` INT DEFAULT NULL,
+  `leg_opening_cm` INT DEFAULT NULL,
+  `fit_type` VARCHAR(32) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sku_unique` (`spu_id`, `color`, `size`, `length_cm`, `waist_cm`, `leg_opening_cm`, `fit_type`),
+  KEY `idx_sku_spu_id` (`spu_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `cart_item` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `sku_id` BIGINT NOT NULL,
+  `quantity` INT NOT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_cart_user_sku_deleted` (`user_id`, `sku_id`, `deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `favorite` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `spu_id` BIGINT NOT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_spu` (`user_id`, `spu_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `order_info` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `order_no` VARCHAR(64) NOT NULL,
+  `user_id` BIGINT NOT NULL,
+  `total_amount` DECIMAL(10,2) NOT NULL,
+  `status` VARCHAR(16) NOT NULL,
+  `address_snapshot` TEXT,
+  `remark` VARCHAR(255) DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  `paid_at` DATETIME DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_order_no_deleted` (`order_no`, `deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `order_item` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `order_id` BIGINT NOT NULL,
+  `spu_id` BIGINT NOT NULL,
+  `sku_id` BIGINT NOT NULL,
+  `sku_title` VARCHAR(128) NOT NULL,
+  `price` DECIMAL(10,2) NOT NULL,
+  `quantity` INT NOT NULL,
+  `amount` DECIMAL(10,2) NOT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_order_item_order_id` (`order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `payment` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `order_id` BIGINT NOT NULL,
+  `pay_no` VARCHAR(64) DEFAULT NULL,
+  `amount` DECIMAL(10,2) NOT NULL,
+  `status` VARCHAR(16) NOT NULL,
+  `pay_type` VARCHAR(32) DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `review` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `order_id` BIGINT NOT NULL,
+  `spu_id` BIGINT NOT NULL,
+  `sku_id` BIGINT NOT NULL,
+  `rating` INT NOT NULL,
+  `content` VARCHAR(512) DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  `size_feel` VARCHAR(16) DEFAULT NULL COMMENT '尺码感受',
+  `length_feel` VARCHAR(16) DEFAULT NULL COMMENT '裤长感受',
+  `fit_feel` VARCHAR(16) DEFAULT NULL COMMENT '版型感受',
+  `fabric_feel` VARCHAR(16) DEFAULT NULL COMMENT '面料感受',
+  `purchase_size` VARCHAR(32) DEFAULT NULL COMMENT '购买尺码',
+  `anonymous` TINYINT(1) DEFAULT 0 COMMENT '是否匿名评价：0否 1是',
+  `images` VARCHAR(1024) DEFAULT NULL COMMENT '评价图片，多个图片URL用英文逗号分隔',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `after_sale` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `order_id` BIGINT NOT NULL COMMENT '订单ID',
+  `order_no` VARCHAR(64) NOT NULL COMMENT '订单编号',
+  `user_id` BIGINT NOT NULL COMMENT '申请用户ID',
+  `type` VARCHAR(32) NOT NULL COMMENT '售后类型：REFUND仅退款、RETURN_REFUND退货退款',
+  `reason` VARCHAR(255) DEFAULT NULL COMMENT '申请原因',
+  `description` VARCHAR(1000) DEFAULT NULL COMMENT '申请说明',
+  `status` VARCHAR(32) NOT NULL COMMENT '状态：PENDING待审核、APPROVED已通过、REJECTED已拒绝',
+  `admin_remark` VARCHAR(500) DEFAULT NULL COMMENT '管理员审核备注',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_after_sale_order_deleted` (`order_id`, `deleted`),
+  KEY `idx_after_sale_user_id` (`user_id`),
+  KEY `idx_after_sale_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='售后申请表';

@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pants.mall.mapper.ProductSkuMapper">
+
+    <update id="decreaseStock">
+        UPDATE product_sku
+        SET stock = stock - #{quantity}
+        WHERE id = #{skuId}
+          AND stock &gt;= #{quantity}
+          AND deleted = 0
+          AND status = 'ON'
+    </update>
+
+    <update id="increaseStock">
+        UPDATE product_sku
+        SET stock = stock + #{quantity}
+        WHERE id = #{skuId}
+          AND deleted = 0
+    </update>
+
+    <select id="selectAggBySpuIds" resultType="map">
+        SELECT
+            spu_id,
+            MIN(price) AS min_price,
+            MAX(price) AS max_price,
+            SUM(stock) AS total_stock
+        FROM product_sku
+        WHERE deleted = 0
+          AND status = 'ON'
+          AND spu_id IN
+        <foreach collection="spuIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        GROUP BY spu_id
+    </select>
+
+    <select id="selectSpuMinPrice" resultType="map">
+        SELECT
+            s.id AS spu_id,
+            MIN(k.price) AS min_price
+        FROM product_spu s
+                 JOIN product_sku k ON s.id = k.spu_id
+        WHERE s.deleted = 0
+          AND s.status = 'ON'
+          AND k.deleted = 0
+          AND k.status = 'ON'
+        <if test="req.keyword != null and req.keyword != ''">
+            AND s.name LIKE CONCAT('%', #{req.keyword}, '%')
+        </if>
+        <if test="req.categoryId != null">
+            AND s.category_id = #{req.categoryId}
+        </if>
+        <if test="req.colorValues != null and req.colorValues.size() > 0">
+            AND k.color IN
+            <foreach collection="req.colorValues" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="(req.colorValues == null or req.colorValues.size() == 0) and req.color != null and req.color != ''">
+            AND k.color = #{req.color}
+        </if>
+        <if test="req.size != null and req.size != ''">
+            AND k.size = #{req.size}
+        </if>
+        <if test="req.fitType != null and req.fitType != ''">
+            AND k.fit_type = #{req.fitType}
+        </if>
+        <if test="req.minPrice != null">
+            AND k.price &gt;= #{req.minPrice}
+        </if>
+        <if test="req.maxPrice != null">
+            AND k.price &lt;= #{req.maxPrice}
+        </if>
+        <if test="req.onlyInStock != null and req.onlyInStock">
+            AND k.stock &gt; 0
+        </if>
+        <if test="req.lengthMin != null">
+            AND k.length_cm &gt;= #{req.lengthMin}
+        </if>
+        <if test="req.lengthMax != null">
+            AND k.length_cm &lt;= #{req.lengthMax}
+        </if>
+        <if test="req.waistMin != null">
+            AND k.waist_cm &gt;= #{req.waistMin}
+        </if>
+        <if test="req.waistMax != null">
+            AND k.waist_cm &lt;= #{req.waistMax}
+        </if>
+        <if test="req.legOpeningMin != null">
+            AND k.leg_opening_cm &gt;= #{req.legOpeningMin}
+        </if>
+        <if test="req.legOpeningMax != null">
+            AND k.leg_opening_cm &lt;= #{req.legOpeningMax}
+        </if>
+        GROUP BY s.id
+        ORDER BY min_price
+        <if test="req.sortOrder != null and (req.sortOrder == 'DESC' or req.sortOrder == 'desc')">
+            DESC
+        </if>
+    </select>
+
+    <select id="selectCompareAggBySpuIds" resultType="map">
+        SELECT
+            spu_id,
+            MIN(price) AS min_price,
+            MAX(price) AS max_price,
+            SUM(stock) AS total_stock,
+            MIN(waist_cm) AS min_waist_cm,
+            MAX(waist_cm) AS max_waist_cm,
+            MIN(length_cm) AS min_length_cm,
+            MAX(length_cm) AS max_length_cm,
+            MIN(leg_opening_cm) AS min_leg_opening_cm,
+            MAX(leg_opening_cm) AS max_leg_opening_cm,
+            GROUP_CONCAT(DISTINCT color ORDER BY color SEPARATOR ',') AS colors,
+            GROUP_CONCAT(DISTINCT size ORDER BY size SEPARATOR ',') AS sizes,
+            GROUP_CONCAT(DISTINCT fit_type ORDER BY fit_type SEPARATOR ',') AS fit_types
+        FROM product_sku
+        WHERE deleted = 0
+          AND status = 'ON'
+          AND spu_id IN
+        <foreach collection="spuIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        GROUP BY spu_id
+    </select>
+
+    <select id="searchPants" resultType="com.pants.mall.entity.ProductSku">
+        SELECT
+            id,
+            spu_id,
+            sku_code,
+            title,
+            price,
+            stock,
+            color,
+            size,
+            status,
+            length_cm,
+            waist_cm,
+            leg_opening_cm,
+            fit_type,
+            created_at,
+            updated_at,
+            deleted
+        FROM product_sku
+        <where>
+            deleted = 0
+            AND status = 'ON'
+            AND stock &gt; 0
+
+            <if test="spuId != null">
+                AND spu_id = #{spuId}
+            </if>
+
+            <if test="color != null and color != ''">
+                AND color = #{color}
+            </if>
+
+            <if test="size != null and size != ''">
+                AND size = #{size}
+            </if>
+
+            <if test="fitType != null and fitType != ''">
+                AND fit_type = #{fitType}
+            </if>
+
+            <if test="lengthCm != null">
+                AND length_cm = #{lengthCm}
+            </if>
+
+            <if test="waistCm != null">
+                AND waist_cm = #{waistCm}
+            </if>
+
+            <if test="legOpeningCm != null">
+                AND leg_opening_cm = #{legOpeningCm}
+            </if>
+
+            <if test="minPrice != null">
+                AND price &gt;= #{minPrice}
+            </if>
+
+            <if test="maxPrice != null">
+                AND price &lt;= #{maxPrice}
+            </if>
+        </where>
+        ORDER BY price ASC, length_cm ASC, size ASC
+    </select>
+
+    <select id="searchByLength" resultType="com.pants.mall.entity.ProductSku">
+        <![CDATA[
+        SELECT
+            id,
+            spu_id,
+            sku_code,
+            title,
+            price,
+            stock,
+            color,
+            size,
+            status,
+            length_cm,
+            waist_cm,
+            leg_opening_cm,
+            fit_type,
+            created_at,
+            updated_at,
+            deleted
+        FROM product_sku
+        WHERE deleted = 0
+          AND status = 'ON'
+          AND stock > 0
+          AND length_cm BETWEEN (#{lengthCm} - 2) AND (#{lengthCm} + 2)
+        ORDER BY ABS(length_cm - #{lengthCm}) ASC, price ASC
+        LIMIT 50
+        ]]>
+    </select>
+
+    <select id="selectSkusByBody" resultType="com.pants.mall.entity.ProductSku">
+        <![CDATA[
+        SELECT
+            id,
+            spu_id,
+            sku_code,
+            title,
+            price,
+            stock,
+            color,
+            size,
+            status,
+            length_cm,
+            waist_cm,
+            leg_opening_cm,
+            fit_type,
+            created_at,
+            updated_at,
+            deleted
+        FROM product_sku
+        WHERE deleted = 0
+          AND status = 'ON'
+          AND stock > 0
+          AND length_cm BETWEEN (#{lengthCm} - 1) AND (#{lengthCm} + 1)
+          AND waist_cm BETWEEN (#{waistCm} - 2) AND (#{waistCm} + 2)
+        ORDER BY ABS(length_cm - #{lengthCm}) ASC,
+                 ABS(waist_cm - #{waistCm}) ASC,
+                 price ASC
+        LIMIT 20
+        ]]>
+    </select>
+
+    <select id="selectTopSkusBoughtBySimilarUsers" resultType="com.pants.mall.entity.ProductSku">
+        SELECT
+            ps.id,
+            ps.spu_id,
+            ps.sku_code,
+            ps.title,
+            ps.price,
+            ps.stock,
+            ps.color,
+            ps.size,
+            ps.status,
+            ps.length_cm,
+            ps.waist_cm,
+            ps.leg_opening_cm,
+            ps.fit_type,
+            ps.created_at,
+            ps.updated_at,
+            ps.deleted
+        FROM product_sku ps
+                 JOIN (
+            SELECT
+                oi.sku_id AS sku_id,
+                SUM(oi.quantity) AS buy_count
+            FROM user u
+                     JOIN order_info o ON o.user_id = u.id AND o.deleted = 0
+                     JOIN order_item oi ON oi.order_id = o.id AND oi.deleted = 0
+            WHERE u.deleted = 0
+              AND ABS(u.height_cm - #{heightCm}) &lt;= 5
+              AND ABS(u.waist_cm - #{waistCm}) &lt;= 3
+              AND o.status IN ('PAID','SHIPPED','FINISHED')
+            GROUP BY oi.sku_id
+        ) t ON ps.id = t.sku_id
+        WHERE ps.deleted = 0
+          AND ps.status = 'ON'
+          AND ps.stock &gt; 0
+        ORDER BY t.buy_count DESC, ps.price ASC
+        LIMIT 10
+    </select>
+
+    <select id="selectOptionsBySpuId" resultType="com.pants.mall.entity.ProductSku">
+        SELECT
+            id,
+            spu_id,
+            sku_code,
+            title,
+            price,
+            stock,
+            color,
+            size,
+            status,
+            length_cm,
+            waist_cm,
+            leg_opening_cm,
+            fit_type,
+            created_at,
+            updated_at,
+            deleted
+        FROM product_sku
+        WHERE deleted = 0
+          AND status = 'ON'
+          AND spu_id = #{spuId}
+        ORDER BY size ASC, length_cm ASC, leg_opening_cm ASC, price ASC
+    </select>
+
+    <select id="selectOptionValuesBySpuId" resultType="map">
+        <![CDATA[
+        SELECT
+            GROUP_CONCAT(DISTINCT size ORDER BY size) AS sizes,
+            GROUP_CONCAT(DISTINCT color ORDER BY color) AS colors,
+            GROUP_CONCAT(DISTINCT length_cm ORDER BY length_cm) AS lengths,
+            GROUP_CONCAT(DISTINCT waist_cm ORDER BY waist_cm) AS waists,
+            GROUP_CONCAT(DISTINCT leg_opening_cm ORDER BY leg_opening_cm) AS legOpenings,
+            GROUP_CONCAT(DISTINCT fit_type ORDER BY fit_type) AS fitTypes
+        FROM product_sku
+        WHERE deleted = 0
+          AND status = 'ON'
+          AND spu_id = #{spuId}
+        ]]>
+    </select>
+
+    <select id="selectAdminSkusBySpuId" resultType="com.pants.mall.entity.ProductSku">
+        SELECT
+            id,
+            spu_id,
+            sku_code,
+            title,
+            price,
+            stock,
+            color,
+            size,
+            status,
+            length_cm,
+            waist_cm,
+            leg_opening_cm,
+            fit_type,
+            created_at,
+            updated_at,
+            deleted
+        FROM product_sku
+        WHERE deleted = 0
+          AND spu_id = #{spuId}
+        ORDER BY id ASC
+    </select>
+
+</mapper>

@@ -1,0 +1,815 @@
+.pants-list-page {
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+/* 搜索区域 */
+.pants-search-section {
+  background: var(--color-surface);
+  padding: var(--spacing-10) 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.pants-search-container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding-md);
+  text-align: center;
+}
+
+.pants-page-title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-3);
+}
+
+.pants-page-subtitle {
+  font-size: var(--font-size-base);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--spacing-8);
+}
+
+.pants-search-bar {
+  display: flex;
+  max-width: 800px;
+  margin: 0 auto;
+  gap: var(--spacing-4);
+}
+
+.pants-search-input {
+  flex: 1;
+  height: 56px;
+  padding: 0 var(--spacing-6);
+  border: 3px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-lg);
+  transition: var(--transition-normal);
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.1);
+}
+
+.pants-search-input:focus {
+  outline: none;
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.pants-search-btn {
+  height: 56px;
+  padding: 0 var(--spacing-10);
+  background: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2);
+}
+
+.pants-search-btn:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 122, 0, 0.3);
+}
+
+/* 筛选区域 */
+.pants-filter-section {
+  background: var(--color-surface);
+  margin-top: var(--spacing-5);
+  padding: var(--spacing-5) 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.pants-filter-container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+}
+
+.pants-price-filter {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.pants-filter-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.pants-price-input {
+  width: 100px;
+  height: 36px;
+  padding: 0 var(--spacing-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+}
+
+.pants-price-input:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.pants-price-separator {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.pants-filter-btn {
+  height: 36px;
+  padding: 0 var(--spacing-5);
+  background: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.pants-filter-btn:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);
+}
+
+.pants-filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: var(--spacing-4);
+}
+
+.pants-hot-tag {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: none;
+  color: var(--color-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pants-hot-icon {
+  font-size: var(--font-size-lg);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pants-toggle-filters-btn {
+  height: 44px;
+  padding: 0 var(--spacing-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  white-space: nowrap;
+}
+
+.pants-toggle-filters-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(255, 122, 0, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.15);
+}
+
+.pants-reset-btn {
+  height: 36px;
+  padding: 0 var(--spacing-5);
+  background: var(--color-surface);
+  color: var(--color-text-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.pants-reset-btn:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+.pants-advanced-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin: var(--spacing-4) 0;
+  padding: var(--spacing-4);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+}
+
+.pants-filter-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  flex-wrap: wrap;
+}
+
+.pants-filter-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.pants-sort-options {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  margin-top: var(--spacing-0);
+  padding: var(--spacing-4);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+}
+
+.pants-sort-select {
+  height: 40px;
+  padding: 0 var(--spacing-4);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  background: var(--color-surface);
+  cursor: pointer;
+  min-width: 140px;
+  color: var(--color-text-primary);
+  transition: var(--transition-normal);
+}
+
+.pants-sort-select:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.1);
+}
+
+.pants-sort-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.15);
+}
+
+/* 结果区域 */
+.pants-result-section {
+  max-width: var(--container-max-width);
+  margin: var(--spacing-5) auto;
+  padding: 0 var(--container-padding-md);
+}
+
+.pants-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-6);
+  padding-bottom: var(--spacing-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pants-result-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.pants-result-count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+/* 空状态 */
+.pants-empty-state {
+  text-align: center;
+  padding: 80px 0;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.pants-empty-icon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-4);
+}
+
+.pants-empty-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.pants-empty-sub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+/* 商品网格 */
+.pants-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-5);
+}
+
+/* 商品卡片 */
+.pants-product-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-normal);
+  cursor: pointer;
+}
+
+.pants-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.pants-product-image {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+  background: var(--color-background);
+}
+
+.pants-product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-normal);
+}
+
+.pants-product-card:hover .pants-product-img {
+  transform: scale(1.05);
+}
+
+.pants-product-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--color-background);
+}
+
+.pants-placeholder-icon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-3);
+}
+
+.pants-placeholder-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.pants-hot-badge {
+  position: absolute;
+  top: var(--spacing-3);
+  left: var(--spacing-3);
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  padding: 4px var(--spacing-3);
+  border-radius: var(--radius-full);
+}
+
+.pants-product-info {
+  padding: var(--spacing-4);
+}
+
+.pants-product-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-3);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.pants-product-price {
+  margin-bottom: var(--spacing-3);
+}
+
+.pants-price-symbol {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.pants-price-value {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+.pants-product-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-3);
+}
+
+.pants-sales {
+  display: flex;
+  align-items: center;
+}
+
+.pants-stock {
+  display: flex;
+  align-items: center;
+}
+
+.pants-product-tags {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.pants-tag {
+  font-size: var(--font-size-xs);
+  padding: 2px var(--spacing-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  background: var(--color-background);
+}
+
+.pants-tag.sales-tag {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(255, 122, 0, 0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .pants-search-container {
+    padding: 0 16px;
+  }
+  
+  .pants-page-title {
+    font-size: 24px;
+  }
+  
+  .pants-search-bar {
+    flex-direction: column;
+    max-width: 100%;
+  }
+  
+  .pants-search-input {
+    width: 100%;
+  }
+  
+  .pants-search-btn {
+    width: 100%;
+  }
+  
+  .pants-filter-container {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 16px;
+  }
+  
+  .pants-price-filter {
+    justify-content: space-between;
+  }
+  
+  .pants-advanced-filters {
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+  
+  .pants-filter-group {
+    justify-content: space-between;
+  }
+  
+  .pants-sort-select {
+    flex: 1;
+  }
+  
+  .pants-sort-options {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-4);
+  }
+  
+  .pants-result-section {
+    padding: 0 16px;
+  }
+  
+  .pants-product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+  
+  .pants-product-image {
+    height: 160px;
+  }
+  
+  .pants-product-info {
+    padding: 12px;
+  }
+  
+  .pants-product-name {
+    font-size: 14px;
+  }
+  
+  .pants-price-value {
+    font-size: 16px;
+  }
+}
+
+/* 分页组件 */
+.pants-pagination {
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.pants-pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-6);
+}
+
+.pants-pagination-btn {
+  height: 40px;
+  padding: 0 var(--spacing-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.pants-pagination-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(255, 122, 0, 0.05);
+}
+
+.pants-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pants-pagination-info {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+.pants-pagination-numbers {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.pants-pagination-number-btn {
+  height: 40px;
+  min-width: 40px;
+  padding: 0 var(--spacing-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pants-pagination-number-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(255, 122, 0, 0.05);
+}
+
+.pants-pagination-number-btn.active {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+}
+
+.pants-pagination-number-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pants-pagination-ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--spacing-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  min-width: 32px;
+}
+
+@media (max-width: 768px) {
+  .pants-pagination-container {
+    gap: var(--spacing-4);
+  }
+  
+  .pants-pagination-btn {
+    padding: 0 var(--spacing-4);
+    font-size: var(--font-size-xs);
+  }
+  
+  .pants-pagination-info {
+    font-size: var(--font-size-xs);
+  }
+  
+  .pants-pagination-number-btn {
+    height: 32px;
+    min-width: 32px;
+    font-size: var(--font-size-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .pants-search-section {
+    padding: 24px 0;
+  }
+  
+  .pants-page-title {
+    font-size: 20px;
+  }
+  
+  .pants-page-subtitle {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  
+  .pants-price-input {
+    width: 80px;
+  }
+  
+  .pants-product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .pants-product-image {
+    height: 140px;
+  }
+  
+  .pants-product-name {
+    font-size: 12px;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+  
+  .pants-price-value {
+    font-size: 14px;
+  }
+  
+  .pants-product-meta {
+    font-size: 10px;
+  }
+  
+  .pants-tag {
+    font-size: 10px;
+    padding: 1px 6px;
+  }
+  
+  .pants-pagination {
+    margin-top: var(--spacing-6);
+    padding-top: var(--spacing-4);
+  }
+  
+  .pants-pagination-container {
+    gap: var(--spacing-3);
+  }
+  
+  .pants-pagination-btn {
+    height: 32px;
+    padding: 0 var(--spacing-3);
+  }
+}
+
+/* 悬浮式AI推荐助手 */
+.pants-ai-floating {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  z-index: 1000;
+}
+
+.pants-ai-floating-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 20px;
+  background: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  font-size: 16px;
+  font-weight: 500;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.pants-ai-floating-btn:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 122, 0, 0.4);
+}
+
+.pants-ai-floating-icon {
+  font-size: 20px;
+}
+
+.pants-ai-floating-text {
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .pants-ai-floating {
+    right: 20px;
+    bottom: 20px;
+  }
+  
+  .pants-ai-floating-btn {
+    padding: 12px 16px;
+    font-size: 14px;
+    min-width: 100px;
+  }
+  
+  .pants-ai-floating-icon {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pants-ai-floating {
+    right: 15px;
+    bottom: 15px;
+  }
+  
+  .pants-ai-floating-btn {
+    padding: 10px 14px;
+    font-size: 12px;
+    min-width: 80px;
+  }
+  
+  .pants-ai-floating-icon {
+    font-size: 16px;
+  }
+}
+
+/* 过滤操作按钮 */
+.pants-filter-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}

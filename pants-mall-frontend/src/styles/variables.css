@@ -1,0 +1,99 @@
+:root {
+  /* 颜色系统 */
+  --color-primary: #ff7a00;
+  --color-primary-light: #ff9f43;
+  --color-primary-dark: #e66a00;
+  --color-secondary: #2563eb;
+  --color-secondary-light: #3b82f6;
+  --color-secondary-dark: #1d4ed8;
+  --color-background: #f6f7fb;
+  --color-surface: #ffffff;
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-tertiary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-border: rgba(15, 23, 42, 0.08);
+  --color-border-light: rgba(15, 23, 42, 0.06);
+  --color-error: #dc2626;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  
+  /* 字体系统 */
+  --font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+  --font-size-4xl: 34px;
+  --font-size-5xl: 44px;
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+  
+  /* 间距系统 */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 28px;
+  --spacing-8: 32px;
+  --spacing-9: 36px;
+  --spacing-10: 40px;
+  
+  /* 圆角系统 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-2xl: 22px;
+  --radius-3xl: 24px;
+  --radius-4xl: 28px;
+  --radius-5xl: 30px;
+  --radius-full: 9999px;
+  
+  /* 阴影系统 */
+  --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 8px 18px rgba(15, 23, 42, 0.07);
+  --shadow-lg: 0 12px 24px rgba(15, 23, 42, 0.1);
+  --shadow-xl: 0 18px 40px rgba(15, 23, 42, 0.12);
+  --shadow-2xl: 0 20px 44px rgba(15, 23, 42, 0.14);
+  
+  /* 过渡动画 */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  /* 布局常量 */
+  --container-max-width: 1600px;
+  --container-padding: 40px;
+  --container-padding-sm: 32px;
+  --container-padding-md: 24px;
+  
+  /* 导航高度 */
+  --nav-height: 80px;
+  --nav-height-sm: 64px;
+}
+
+@media (max-width: 1400px) {
+  :root {
+    --container-max-width: 1440px;
+    --container-padding: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --container-padding: 24px;
+    --font-size-4xl: 34px;
+    --font-size-5xl: 40px;
+  }
+}

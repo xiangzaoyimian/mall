@@ -1,0 +1,46 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mall?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+
+  sql:
+    init:
+      mode: never
+      schema-locations: classpath:db/schema.sql
+      data-locations: classpath:db/data.sql
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath:mapper/*.xml
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+
+jwt:
+  secret: "PANTS_MALL_JWT_SECRET_2026_32+CHARS_LONG_OK"
+  expireMinutes: 1440
+
+logging:
+  level:
+    root: info
+    com.pants.mall: debug
+    org.springframework.web: info
+
+ai:
+  deepseek:
+    baseUrl: https://ark.cn-beijing.volces.com/api/v3
+    apiKey: ebf48a93-211e-4f39-98ea-4359c0687f66
+    model: ep-20260325191605-48ccr
+upload:
+  path: B:/GO_COED/zcc/up

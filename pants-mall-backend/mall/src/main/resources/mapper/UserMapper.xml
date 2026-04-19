@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pants.mall.mapper.UserMapper">
+
+  <!-- 更新身体数据：只更新非 null 的字段 -->
+  <update id="updateBody">
+    UPDATE user
+    <set>
+      <if test="height != null">height_cm = #{height},</if>
+      <if test="waist != null">waist_cm = #{waist},</if>
+      <if test="leg != null">leg_length_cm = #{leg},</if>
+    </set>
+    WHERE id = #{userId}
+      AND deleted = 0
+  </update>
+
+  <!-- 修改昵称 -->
+  <update id="updateNickname">
+    UPDATE user
+    SET nickname = #{nickname}
+    WHERE id = #{userId}
+      AND deleted = 0
+  </update>
+
+  <!-- 相似身材的人在买什么（你如果不用它，也没关系，留着不报错） -->
+  <select id="selectSimilarUserOrders" resultType="map">
+    <![CDATA[
+    SELECT
+      oi.sku_id        AS skuId,
+      oi.sku_title     AS title,
+      SUM(oi.quantity) AS buyCount
+    FROM user u
+    JOIN order_info o  ON o.user_id = u.id AND o.deleted = 0
+    JOIN order_item oi ON oi.order_id = o.id AND oi.deleted = 0
+    WHERE u.deleted = 0
+      AND ABS(u.height_cm - #{height}) <= 5
+      AND ABS(u.waist_cm  - #{waist})  <= 3
+      AND o.status IN ('PAID','SHIPPED','FINISHED')
+    GROUP BY oi.sku_id, oi.sku_title
+    ORDER BY buyCount DESC
+    LIMIT 10
+    ]]>
+  </select>
+
+</mapper>
