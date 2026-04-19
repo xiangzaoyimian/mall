@@ -199,6 +199,10 @@ export default function App() {
     sortBy?: string
     sortOrder?: string
   }>({})
+  
+  // 商品对比相关状态
+  const [pantsPageCompareIds, setPantsPageCompareIds] = useState<Array<string | number>>([])
+  const [pantsPageCompareOpen, setPantsPageCompareOpen] = useState(false)
 
   const userMenuRef = useRef<HTMLDivElement | null>(null)
   const token = readToken()
@@ -648,6 +652,12 @@ export default function App() {
             savedFilters={pantsPageSavedFilters}
             onFiltersChange={setPantsPageSavedFilters}
             onResetFilters={() => setPantsPageSavedFilters({})}
+            compareIds={pantsPageCompareIds}
+            compareOpen={pantsPageCompareOpen}
+            onCompareChange={(compareIds, compareOpen) => {
+              setPantsPageCompareIds(compareIds)
+              setPantsPageCompareOpen(compareOpen)
+            }}
           />
         )}
 
@@ -917,7 +927,7 @@ function HomePage({
               { name: '直筒', icon: '👖', color: '#3b82f6', desc: '经典百搭，舒适有型' },
               { name: '修身', icon: '👔', color: '#f97316', desc: '贴合身形，时尚修身' },
               { name: '宽松', icon: '🏃', color: '#8b5cf6', desc: '休闲舒适，活动自如' },
-              { name: '常规', icon: '👕', color: '#10b981', desc: '标准版型，适合大多数人' },
+              { name: '休闲', icon: '👕', color: '#10b981', desc: '标准版型，适合大多数人' },
               { name: '阔腿', icon: '🩳', color: '#ef4444', desc: '宽松舒适，时尚潮流' },
             ].map((cat, idx) => (
               <button 

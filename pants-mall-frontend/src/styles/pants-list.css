@@ -813,3 +813,250 @@
   gap: 12px;
   align-items: center;
 }
+
+/* 商品对比相关样式 */
+.pants-product-actions {
+  margin-top: 8px;
+}
+
+.pants-compare-btn {
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pants-compare-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pants-compare-btn.active {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.pants-compare-button-container {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  z-index: 1000;
+}
+
+.pants-compare-button {
+  padding: 12px 20px;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pants-compare-button:hover {
+  background-color: var(--color-primary-light);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.pants-compare-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pants-compare-modal-content {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 1000px;
+  max-height: 80%;
+  overflow: auto;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+}
+
+.pants-compare-modal-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-background);
+}
+
+.pants-compare-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.pants-compare-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s;
+}
+
+.pants-compare-modal-close:hover {
+  background-color: var(--color-background);
+}
+
+.pants-compare-modal-body {
+  padding: 20px;
+}
+
+.pants-compare-loading,
+.pants-compare-empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--color-text-tertiary);
+}
+
+.pants-compare-table-container {
+  overflow-x: auto;
+}
+
+.pants-compare-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pants-compare-table th,
+.pants-compare-table td {
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.pants-compare-table th {
+  background-color: var(--color-background);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.pants-compare-product-name {
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 8px;
+  color: var(--color-text-primary);
+}
+
+.pants-compare-product-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.pants-compare-image-placeholder {
+  width: 80px;
+  height: 80px;
+  background-color: var(--color-background);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+}
+
+.pants-compare-modal-footer {
+  padding: 16px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background-color: var(--color-background);
+}
+
+.pants-compare-clear,
+.pants-compare-close-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pants-compare-clear {
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.pants-compare-clear:hover {
+  background-color: rgba(255, 122, 0, 0.05);
+}
+
+.pants-compare-close-btn {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.pants-compare-close-btn:hover {
+  background-color: var(--color-background);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .pants-compare-button-container {
+    bottom: 90px;
+    right: 20px;
+  }
+  
+  .pants-compare-button {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+  
+  .pants-compare-modal-content {
+    width: 95%;
+    max-height: 90%;
+  }
+  
+  .pants-compare-product-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .pants-compare-image-placeholder {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .pants-compare-table th,
+  .pants-compare-table td {
+    padding: 8px;
+    font-size: 13px;
+  }
+}

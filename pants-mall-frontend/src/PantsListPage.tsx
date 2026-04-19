@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
-import { getProductList } from './api/products'
+import * as productsApi from './api/products'
 import './styles/pants-list.css'
+
+type ProductItem = productsApi.ProductItem
+type ProductCompareItem = productsApi.ProductCompareItem
 
 type FilterState = {
   keyword?: string
@@ -29,6 +32,9 @@ type Props = {
   savedFilters?: FilterState
   onFiltersChange?: (filters: FilterState) => void
   onResetFilters?: () => void
+  compareIds?: Array<string | number>
+  compareOpen?: boolean
+  onCompareChange?: (compareIds: Array<string | number>, compareOpen: boolean) => void
 }
 
 function toNumberOrUndefined(v: string) {
@@ -102,6 +108,9 @@ export default function PantsListPage({
   savedFilters,
   onFiltersChange,
   onResetFilters,
+  compareIds = [],
+  compareOpen = false,
+  onCompareChange,
 }: Props) {
   const getInitialValue = (key: keyof FilterState, defaultValue: string) => {
     if (savedFilters && key in savedFilters) {
@@ -140,6 +149,10 @@ export default function PantsListPage({
   const [products, setProducts] = useState<ProductItem[]>([])
   const [searched, setSearched] = useState(false)
   const [total, setTotal] = useState(0)
+  
+  // 商品对比相关状态
+  const [compareProducts, setCompareProducts] = useState<ProductCompareItem[]>([])
+  const [compareLoading, setCompareLoading] = useState(false)
 
   const countText = useMemo(() => {
     if (!searched) return '正在准备商品列表'
@@ -181,7 +194,7 @@ export default function PantsListPage({
         size: size || undefined,
       })
 
-      const data = await getProductList(params)
+      const data = await productsApi.getProductList(params)
       const productList = Array.isArray(data.list) ? data.list : []
       setProducts(productList)
       setTotal(Number(data.total || 0))
@@ -199,7 +212,7 @@ export default function PantsListPage({
   async function loadDefaultProducts() {
     setLoading(true)
     try {
-      const data = await getProductList({
+      const data = await productsApi.getProductList({
         pageNo: 1,
         pageSize: 15,
         sortBy: 'NEW',
@@ -284,12 +297,85 @@ export default function PantsListPage({
     setColor('')
     setSize('')
 
+    // 标记用户已点击重置按钮
+    hasResetRef.current = true
+
     if (onResetFilters) {
       onResetFilters()
     }
 
     loadDefaultProducts()
   }
+
+  function handleCompare(id: string | number) {
+    const currentCompareIds = [...(compareIds || [])]
+    const index = currentCompareIds.findIndex((item) => String(item) === String(id))
+    
+    let nextCompareIds: Array<string | number>
+    
+    if (index >= 0) {
+      // 已存在，移除
+      nextCompareIds = currentCompareIds.filter((item) => String(item) !== String(id))
+    } else {
+      // 不存在，添加
+      if (currentCompareIds.length >= 3) {
+        alert('最多只能对比 3 个商品')
+        return
+      }
+      nextCompareIds = [...currentCompareIds, id]
+    }
+    
+    if (onCompareChange) {
+      onCompareChange(nextCompareIds, nextCompareIds.length >= 2)
+    }
+  }
+
+  function isInCompare(id: string | number) {
+    return (compareIds || []).some((item) => String(item) === String(id))
+  }
+
+  // 加载对比数据
+  const loadCompareData = useCallback(async () => {
+    if (!compareIds || compareIds.length === 0) {
+      setCompareProducts([])
+      setCompareLoading(false)
+      return
+    }
+
+    setCompareLoading(true)
+    try {
+      const data = await productsApi.getProductCompare(compareIds)
+      if (Array.isArray(data)) {
+        setCompareProducts(data)
+      }
+    } catch (error) {
+      console.error('加载对比数据失败:', error)
+      // 保留旧数据，避免对比区高度塌陷
+    } finally {
+      setCompareLoading(false)
+    }
+  }, [compareIds])
+
+  // 当对比商品ID变化时，加载对比数据
+  useEffect(() => {
+    loadCompareData()
+  }, [loadCompareData])
+
+  // 显示对比弹窗的商品
+  const displayedCompareProducts = useMemo(() => {
+    if (!compareIds || compareIds.length === 0 || !compareProducts.length) return []
+
+    const map = new Map(
+      compareProducts.map((item) => [String(item.id), item] as const)
+    )
+
+    return compareIds
+      .map((id) => map.get(String(id)))
+      .filter(Boolean) as ProductCompareItem[]
+  }, [compareIds, compareProducts])
+
+  // 是否可以进行对比（至少2个商品）
+  const canCompare = displayedCompareProducts.length >= 2
 
   function handleOpenDetail(spuId?: string | number) {
     const raw = String(spuId || '').trim()
@@ -308,14 +394,15 @@ export default function PantsListPage({
 
 
   const isMountedRef = useRef(false)
+  const hasResetRef = useRef(false)
 
   useEffect(() => {
     // 检查savedFilters是否为空对象
     const isEmptySavedFilters = !savedFilters || Object.keys(savedFilters).length === 0
     
     if (isEmptySavedFilters) {
-      // 只有在首次渲染时才使用initial值
-      if (!isMountedRef.current) {
+      // 只有在首次渲染且用户没有点击重置按钮时才使用initial值
+      if (!isMountedRef.current && !hasResetRef.current) {
         setKeyword(initialKeyword || '')
         setFitType(initialFitType || '')
         setColor('')
@@ -597,6 +684,18 @@ export default function PantsListPage({
                         <span className="pants-tag">裤品精选</span>
                         {salesLevel && <span className="pants-tag sales-tag">{salesLevel}</span>}
                       </div>
+                      
+                      <div className="pants-product-actions">
+                        <button
+                          className={`pants-compare-btn ${isInCompare(x.id) ? 'active' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation() // 阻止事件冒泡，避免触发卡片点击
+                            handleCompare(x.id)
+                          }}
+                        >
+                          {isInCompare(x.id) ? '取消对比' : '加入对比'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )
@@ -714,6 +813,155 @@ export default function PantsListPage({
           <span className="pants-ai-floating-text">AI助手</span>
         </button>
       </div>
+
+      {/* 商品对比按钮 */}
+      {compareIds && compareIds.length > 0 && (
+        <div className="pants-compare-button-container">
+          <button
+            className="pants-compare-button"
+            onClick={() => {
+              if (onCompareChange) {
+                onCompareChange(compareIds, true)
+              }
+            }}
+          >
+            商品对比（{compareIds.length}）
+          </button>
+        </div>
+      )}
+
+      {/* 商品对比弹窗 */}
+      {compareOpen && (
+        <div className="pants-compare-modal">
+          <div className="pants-compare-modal-content">
+            <div className="pants-compare-modal-header">
+              <h3>商品对比</h3>
+              <button
+                className="pants-compare-modal-close"
+                onClick={() => {
+                  if (onCompareChange) {
+                    onCompareChange(compareIds || [], false)
+                  }
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div className="pants-compare-modal-body">
+              {compareLoading ? (
+                <div className="pants-compare-loading">加载对比数据中...</div>
+              ) : compareIds && compareIds.length === 0 ? (
+                <div className="pants-compare-empty">还没有加入对比的商品</div>
+              ) : (
+                <div className="pants-compare-table-container">
+                  <table className="pants-compare-table">
+                    <thead>
+                      <tr>
+                        <th>对比项</th>
+                        {displayedCompareProducts.map((item) => (
+                          <th key={String(item.id)}>
+                            <div className="pants-compare-product-name">{item.name || '未命名商品'}</div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>商品图片</td>
+                        {displayedCompareProducts.map((item) => (
+                          <td key={String(item.id)}>
+                            {item.coverUrl ? (
+                              <img 
+                                src={resolveImageUrl(item.coverUrl)} 
+                                alt={item.name} 
+                                className="pants-compare-product-image"
+                              />
+                            ) : (
+                              <div className="pants-compare-image-placeholder">无图片</div>
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                      <tr>
+                        <td>价格</td>
+                        {displayedCompareProducts.map((item) => (
+                          <td key={String(item.id)}>
+                            ¥{item.minPrice || 0} - ¥{item.maxPrice || 0}
+                          </td>
+                        ))}
+                      </tr>
+                      <tr>
+                        <td>销量</td>
+                        {displayedCompareProducts.map((item) => (
+                          <td key={String(item.id)}>
+                            {item.sales || 0}
+                          </td>
+                        ))}
+                      </tr>
+                      <tr>
+                        <td>库存</td>
+                        {displayedCompareProducts.map((item) => (
+                          <td key={String(item.id)}>
+                            {item.totalStock || 0}
+                          </td>
+                        ))}
+                      </tr>
+                      <tr>
+                        <td>颜色</td>
+                        {displayedCompareProducts.map((item) => (
+                          <td key={String(item.id)}>
+                            {item.colors && item.colors.length > 0 ? item.colors.join(', ') : '无'}
+                          </td>
+                        ))}
+                      </tr>
+                      <tr>
+                        <td>尺码</td>
+                        {displayedCompareProducts.map((item) => (
+                          <td key={String(item.id)}>
+                            {item.sizes && item.sizes.length > 0 ? item.sizes.join(', ') : '无'}
+                          </td>
+                        ))}
+                      </tr>
+                      <tr>
+                        <td>版型</td>
+                        {displayedCompareProducts.map((item) => (
+                          <td key={String(item.id)}>
+                            {item.fitTypes && item.fitTypes.length > 0 ? item.fitTypes.join(', ') : '无'}
+                          </td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+            <div className="pants-compare-modal-footer">
+              {compareIds && compareIds.length > 0 && (
+                <button
+                  className="pants-compare-clear"
+                  onClick={() => {
+                    if (onCompareChange) {
+                      onCompareChange([], false)
+                    }
+                  }}
+                >
+                  清空对比
+                </button>
+              )}
+              <button
+                className="pants-compare-close-btn"
+                onClick={() => {
+                  if (onCompareChange) {
+                    onCompareChange(compareIds || [], false)
+                  }
+                }}
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
